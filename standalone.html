@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magagalaxy - Standalone</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Framer Motion (Motion) -->
+    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/lucide-react@latest"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+            overflow: hidden;
+        }
+        
+        .font-display {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .cosmic-gradient {
+            background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #000000 100%);
+        }
+
+        .star-field {
+            background-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px);
+            background-size: 550px 550px;
+            animation: moveStars 100s linear infinite;
+        }
+
+        @keyframes moveStars {
+            from { background-position: 0 0; }
+            to { background-position: 1000px 1000px; }
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .markdown-body p { margin-bottom: 1rem; }
+        .markdown-body h1, .markdown-body h2 { font-weight: bold; margin-top: 1.5rem; margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+        const { motion, AnimatePresence } = FramerMotion;
+        const { 
+            Send, Sparkles, Search, Brain, Globe, Cpu, Star, 
+            ChevronRight, MessageSquare, MoreVertical, Pin, 
+            Trash2, Plus, PanelLeft, X, Image: ImageIcon, 
+            Zap, Loader2, Clock, LogIn, LogOut, Chrome, 
+            Facebook, Apple, User 
+        } = lucide;
+
+        // Mocking the Lucide components for React
+        const Icon = ({ name, ...props }) => {
+            const LucideIcon = lucide[name] || Star;
+            return <LucideIcon {...props} />;
+        };
+
+        function App() {
+            const [input, setInput] = useState('');
+            const [conversations, setConversations] = useState([
+                { id: '1', title: 'Nova Conversa', messages: [], isPinned: false, createdAt: Date.now() }
+            ]);
+            const [activeId, setActiveId] = useState('1');
+            const [isSuperMode, setIsSuperMode] = useState(false);
+            const [isLoading, setIsLoading] = useState(true);
+            const [showLoginOverlay, setShowLoginOverlay] = useState(true);
+            const [user, setUser] = useState(null);
+            const [isThinking, setIsThinking] = useState(false);
+            const [isWarping, setIsWarping] = useState(false);
+
+            useEffect(() => {
+                const timer = setTimeout(() => setIsLoading(false), 2000);
+                return () => clearTimeout(timer);
+            }, []);
+
+            const handleLogin = (provider) => {
+                // Simulating login for standalone version
+                const demoUser = {
+                    name: `Usuário ${provider.charAt(0).toUpperCase() + provider.slice(1)}`,
+                    email: `demo@${provider}.com`,
+                    provider
+                };
+                setUser(demoUser);
+                setShowLoginOverlay(false);
+            };
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                if (!input.trim()) return;
+
+                const userMsg = { role: 'user', content: input };
+                setInput('');
+                setIsWarping(true);
+                setTimeout(() => setIsWarping(false), 600);
+
+                setConversations(prev => prev.map(c => {
+                    if (c.id === activeId) {
+                        return { ...c, messages: [...c.messages, userMsg], title: c.messages.length === 0 ? userMsg.content.slice(0, 20) : c.title };
+                    }
+                    return c;
+                }));
+
+                setIsThinking(true);
+                // Simulate AI Response
+                setTimeout(() => {
+                    const aiMsg = { 
+                        role: 'assistant', 
+                        content: "Esta é uma resposta simulada da Magagalaxy. No código real, eu me conectaria ao Google Gemini para fornecer respostas profundas e pesquisadas." 
+                    };
+                    setConversations(prev => prev.map(c => {
+                        if (c.id === activeId) return { ...c, messages: [...c.messages, aiMsg] };
+                        return c;
+                    }));
+                    setIsThinking(false);
+                }, 2000);
+            };
+
+            return (
+                <div className="relative min-h-screen flex bg-black overflow-hidden">
+                    {/* Splash Screen */}
+                    <AnimatePresence>
+                        {isLoading && (
+                            <motion.div
+                                initial={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center"
+                            >
+                                <Star className="w-16 h-16 text-indigo-400 animate-pulse mb-4" />
+                                <h1 className="text-4xl font-display font-black tracking-tighter">MAGAGALAXY</h1>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    {/* Login Overlay */}
+                    <AnimatePresence>
+                        {showLoginOverlay && !isLoading && (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                className="fixed inset-0 z-[80] bg-black/80 backdrop-blur-xl flex items-center justify-center p-4"
+                            >
+                                <div className="max-w-md w-full bg-zinc-900 border border-white/10 rounded-3xl p-8 text-center space-y-6">
+                                    <h2 className="text-3xl font-display font-bold">Acesse a Galáxia</h2>
+                                    <div className="space-y-3">
+                                        <button onClick={() => handleLogin('google')} className="w-full py-4 bg-white text-black rounded-2xl font-bold flex items-center justify-center gap-2">
+                                            <Icon name="Chrome" className="w-5 h-5" /> Continuar com Google
+                                        </button>
+                                        <button onClick={() => handleLogin('facebook')} className="w-full py-4 bg-[#1877F2] text-white rounded-2xl font-bold flex items-center justify-center gap-2">
+                                            <Icon name="Facebook" className="w-5 h-5" /> Continuar com Facebook
+                                        </button>
+                                        <button onClick={() => setShowLoginOverlay(false)} className="text-zinc-500 text-sm font-bold uppercase tracking-widest">Continuar sem login</button>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    {/* Background */}
+                    <div className="fixed inset-0 cosmic-gradient opacity-40 pointer-events-none" />
+                    <div className="fixed inset-0 star-field opacity-20 pointer-events-none" />
+
+                    {/* Main Content */}
+                    <div className="flex-1 flex flex-col relative z-10">
+                        <header className="p-6 border-b border-white/10 flex items-center justify-between bg-black/40 backdrop-blur-md">
+                            <div className="flex items-center gap-3">
+                                <Star className="w-6 h-6 text-indigo-400" />
+                                <h1 className="text-xl font-display font-bold">MAGAGALAXY</h1>
+                            </div>
+                            {user && (
+                                <div className="flex items-center gap-3">
+                                    <span className="text-xs text-zinc-400">{user.name}</span>
+                                    <button onClick={() => setUser(null)} className="p-2 hover:bg-white/10 rounded-lg"><LogOut className="w-4 h-4" /></button>
+                                </div>
+                            )}
+                        </header>
+
+                        <main className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar max-w-4xl mx-auto w-full">
+                            {conversations.find(c => c.id === activeId).messages.map((msg, i) => (
+                                <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                    <div className={`max-w-[80%] p-4 rounded-2xl ${msg.role === 'user' ? 'bg-indigo-600' : 'bg-zinc-800 border border-white/10'}`}>
+                                        {msg.content}
+                                    </div>
+                                </div>
+                            ))}
+                            {isThinking && <div className="text-indigo-400 animate-pulse text-sm">Magagalaxy está pensando...</div>}
+                        </main>
+
+                        <footer className="p-6 max-w-4xl mx-auto w-full">
+                            <form onSubmit={handleSubmit} className="relative">
+                                <input 
+                                    value={input}
+                                    onChange={(e) => setInput(e.target.value)}
+                                    placeholder="Pergunte qualquer coisa..."
+                                    className="w-full bg-zinc-900 border border-white/10 rounded-2xl p-4 pr-16 focus:outline-none focus:border-indigo-500 transition-colors"
+                                />
+                                <button type="submit" className="absolute right-2 top-2 p-3 bg-indigo-600 rounded-xl hover:bg-indigo-500 transition-colors">
+                                    <Send className="w-5 h-5" />
+                                </button>
+                            </form>
+                        </footer>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

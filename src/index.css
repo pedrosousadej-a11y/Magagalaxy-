@@ -1,0 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@300;500;700&family=JetBrains+Mono:wght@400&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-galaxy-bg: #050508;
+  --color-galaxy-accent: #6366f1;
+  --color-galaxy-secondary: #a855f7;
+}
+
+@layer base {
+  body {
+    @apply bg-galaxy-bg text-slate-200 font-sans antialiased overflow-x-hidden;
+  }
+}
+
+.cosmic-gradient {
+  background: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 70%),
+              radial-gradient(circle at 10% 20%, rgba(168, 85, 247, 0.1) 0%, transparent 50%);
+}
+
+.star-field {
+  background-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px);
+  background-size: 550px 550px;
+}
+
+.markdown-body {
+  @apply text-slate-300 leading-relaxed;
+}
+
+.markdown-body h1, .markdown-body h2, .markdown-body h3 {
+  @apply text-white font-display font-bold mt-6 mb-4;
+}
+
+.markdown-body p {
+  @apply mb-4;
+}
+
+.markdown-body ul {
+  @apply list-disc ml-6 mb-4;
+}
+
+.markdown-body code {
+  @apply bg-white/10 px-1.5 py-0.5 rounded font-mono text-sm;
+}

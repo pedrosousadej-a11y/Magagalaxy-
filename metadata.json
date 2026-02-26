@@ -1,0 +1,5 @@
+{
+  "name": "Magagalaxy",
+  "description": "Uma inteligência artificial galáctica que orquestra mais de 50 modelos especializados para fornecer respostas profundas e pesquisadas.",
+  "requestFramePermissions": ["camera"]
+}
